@@ -26,6 +26,13 @@ local DW = {}
 	DW.comboCrown = Menu.AddOptionBool({"Hero Specific","Dark willow","Combo spells"},"Use cursed crown",false)
 	DW.comboBedlam = Menu.AddOptionBool({"Hero Specific","Dark willow","Combo spells"},"Use bedlam",false)
 	
+	DW.linkNullifier = Menu.AddOptionBool({"Hero Specific","Dark willow","Remove linked items"},"Use nullifier",false)
+	DW.linkAtos = Menu.AddOptionBool({"Hero Specific","Dark willow","Remove linked items"},"Use atos",false)
+	DW.linkForce = Menu.AddOptionBool({"Hero Specific","Dark willow","Remove linked items"},"Use force/pike",false)
+	DW.linkMed = Menu.AddOptionBool({"Hero Specific","Dark willow","Remove linked items"},"Use medallion/solar",false)
+	DW.linkORch = Menu.AddOptionBool({"Hero Specific","Dark willow","Remove linked items"},"Use orchid/bloodthorn",false)
+	DW.linkCrown = Menu.AddOptionBool({"Hero Specific","Dark willow","Remove linked items"},"Use crown(spell)",false)
+	
 	
 	DW.Hero = nil
 	DW.GameTime = 0
@@ -94,7 +101,6 @@ local DW = {}
 		if not enemy then return end
 		local isAeon = NPC.GetItem(enemy, "item_aeon_disk")
 		local link = NPC.GetItem(enemy, "item_sphere")
-		if Menu.IsEnabled(DW.removeLink) then end
 		local distance = math.floor(math.abs((Entity.GetAbsOrigin(DW.Hero) - Entity.GetAbsOrigin(enemy)) : Length2D())) 
 		local enemyPos = Entity.GetAbsOrigin(enemy)
 		if DW.timeCombo + DW.delayCombo > DW.GameTime then return end
@@ -128,12 +134,12 @@ local DW = {}
 	end
 	
 	function DW.RemoveLink()
-		if DW.Atos and Ability.IsCastable(DW.Atos, DW.manapul) and Ability.IsReady(DW.Atos) then return 2 end
-		if DW.MedSolar and Ability.IsReady(DW.MedSolar) then return 6 end
-		if DW.ForcePike and Ability.IsReady(DW.ForcePike) then return 16 end
-		if DW.Nullifier and Ability.IsCastable(DW.Nullifier, DW.manapul) and Ability.IsReady(DW.Nullifier) then return 7 end
-		if DW.Crown and Ability.IsCastable(DW.Crown, DW.manapul) and Ability.IsReady(DW.Crown) then return 10 end
-		if DW.OrchidBlood and Ability.IsCastable(DW.OrchidBlood, DW.manapul) and Ability.IsReady(DW.OrchidBlood) then return 5 end
+		if Menu.IsEnabled(DW.linkAtos) and DW.Atos and Ability.IsCastable(DW.Atos, DW.manapul) and Ability.IsReady(DW.Atos) then return 2 end
+		if Menu.IsEnabled(DW.linkMed) and DW.MedSolar and Ability.IsReady(DW.MedSolar) then return 6 end
+		if Menu.IsEnabled(DW.linkForce) and DW.ForcePike and Ability.IsReady(DW.ForcePike) then return 16 end
+		if Menu.IsEnabled(DW.linkNullifier) and DW.Nullifier and Ability.IsCastable(DW.Nullifier, DW.manapul) and Ability.IsReady(DW.Nullifier) then return 7 end
+		if Menu.IsEnabled(DW.linkCrown) and DW.Crown and Ability.IsCastable(DW.Crown, DW.manapul) and Ability.IsReady(DW.Crown) then return 10 end
+		if Menu.IsEnabled(DW.OrchidBlood) and DW.OrchidBlood and Ability.IsCastable(DW.OrchidBlood, DW.manapul) and Ability.IsReady(DW.OrchidBlood) then return 5 end
 	end
 	
 	function DW.NextOrder()
