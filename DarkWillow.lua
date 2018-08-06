@@ -4,6 +4,7 @@ local DW = {}
 	Menu.AddMenuIcon({"Hero Specific", "Dark willow"}, "panorama/images/heroes/icons/npc_dota_hero_dark_willow_png.vtex_c")
 	DW.SliderRangeCombo = Menu.AddOptionSlider({"Hero Specific","Dark willow"}, "Distance combo without blink", 250, 1200, 250)
 	DW.SliderDelay = Menu.AddOptionSlider({"Hero Specific","Dark willow"}, "Next order ticks / 10", 1, 10, 1)
+	DW.enemyInRange = Menu.AddOptionSlider({"Hero Specific","Dark willow"}, "Enemy in range", 50, 150, 50)
 	DW.checkAeonDisk = Menu.AddOptionBool({"Hero Specific","Dark willow"}, "Check Aeon Disk", false)
 	DW.removeLink = Menu.AddOptionBool({"Hero Specific","Dark willow"},"REMOVE LINK EFFECT",false)
 	DW.comboKey = Menu.AddKeyOption({"Hero Specific","Dark willow"}, "Key combo", Enum.ButtonCode.KEY_C)
@@ -95,10 +96,34 @@ local DW = {}
 		DW.timeInfo = DW.GameTime		
 	end
 	
+	enemy = nil
 	local blink_radius = 1200
+	targetParticle = 0
+	
+	particals = {}
+	function DW.OnDraw()
+		local newParicle = 0;
+		if not enemy or #particals > 1 then 
+			Particle.Destroy(particals[1])	
+			table.remove(particals, 1)			
+		return end
+
+		newParicle = Particle.Create("particles/ui_mouseactions/range_finder_tower_aoe.vpcf", Enum.ParticleAttachment.PATTACH_ABSORIGIN_FOLLOW, enemy);
+		if newParicle ~= 0 then
+			table.insert(particals, newParicle)
+			Particle.SetControlPoint(newParicle, 2, Entity.GetOrigin(DW.Hero));
+			Particle.SetControlPoint(newParicle, 6, Vector(1, 0, 0));
+			Particle.SetControlPoint(newParicle, 7, Entity.GetOrigin(enemy));
+		end
+		
+		
+	end
+	
 	function DW.Combo()
-		local enemy = Input.GetNearestHeroToCursor(Entity.GetTeamNum(DW.Hero), Enum.TeamType.TEAM_ENEMY)
-		if not enemy then return end
+		
+		if not enemy or not NPC.IsPositionInRange(enemy, Input.GetWorldCursorPos(), Menu.GetValue(DW.enemyInRange), 0) then
+			return
+		end
 		local isAeon = NPC.GetItem(enemy, "item_aeon_disk")
 		local link = NPC.GetItem(enemy, "item_sphere")
 		local distance = math.floor(math.abs((Entity.GetAbsOrigin(DW.Hero) - Entity.GetAbsOrigin(enemy)) : Length2D())) 
@@ -129,7 +154,10 @@ local DW = {}
 			elseif DW.orderNext == 16 then Ability.CastTarget(DW.ForcePike, enemy)
 			else end
 		end
-		Player.AttackTarget(Players.GetLocal(), DW.Hero, enemy)
+		if NPC.HasModifier(DW.Hero, 'modifier_dark_willow_bedlam') and distance > 200 
+			then NPC.MoveTo(DW.Hero, enemyPos, false, true) 
+		else 
+			Player.AttackTarget(Players.GetLocal(), DW.Hero, enemy) end
 		DW.timeCombo = DW.GameTime
 	end
 	
@@ -164,6 +192,10 @@ local DW = {}
 	
 	function DW.OnUpdate()
 		DW.Hero = Heroes.GetLocal()
+		enemy = nil
+		local testEn = Input.GetNearestHeroToCursor(Entity.GetTeamNum(DW.Hero), Enum.TeamType.TEAM_ENEMY)
+		if NPC.IsPositionInRange(testEn, Input.GetWorldCursorPos(), Menu.GetValue(DW.enemyInRange), 0) then 
+			enemy = testEn end
 		if NPC.GetUnitName(DW.Hero) ~= 'npc_dota_hero_dark_willow' then return true end
 		if not Menu.IsEnabled(DW.optionEnable) then return true end	
 		DW.GameTime = os.clock()
