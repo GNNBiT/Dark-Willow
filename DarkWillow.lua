@@ -73,11 +73,8 @@ local DW = {}
 		DW.ForcePike = NPC.GetItem(DW.Hero, "item_hurricane_pike") --item_hurricane_pike_range
 			if not DW.ForcePike then DW.ForcePike = NPC.GetItem(DW.Hero, "item_force_staff") end
 			
-		DW.Dagon = NPC.GetItem(DW.Hero, "item_dagon")
-		for i = 0, 5 do
-			DW.Dagon = NPC.GetItem(DW.Hero, "item_dagon_" .. i, true)
-			if i == 0 then DW.Dagon = NPC.GetItem(DW.Hero, "item_dagon", true) end
-		end	
+		DW.Dagon = NPC.GetItem(DW.Hero, "item_dagon") or NPC.GetItem(DW.Hero, "item_dagon_2") or NPC.GetItem(DW.Hero, "item_dagon_3") or
+			NPC.GetItem(DW.Hero, "item_dagon_4") or NPC.GetItem(DW.Hero, "item_dagon_5")
 		
 		DW.Etherial = NPC.GetItem(DW.Hero, "item_ethereal_blade")
 		DW.Atos = NPC.GetItem(DW.Hero, "item_rod_of_atos")
@@ -97,27 +94,7 @@ local DW = {}
 	end
 	
 	enemy = nil
-	local blink_radius = 1200
-	targetParticle = 0
-	
-	particals = {}
-	function DW.OnDraw()
-		local newParicle = 0;
-		if not enemy or #particals > 1 then 
-			Particle.Destroy(particals[1])	
-			table.remove(particals, 1)			
-		return end
-
-		newParicle = Particle.Create("particles/ui_mouseactions/range_finder_tower_aoe.vpcf", Enum.ParticleAttachment.PATTACH_ABSORIGIN_FOLLOW, enemy);
-		if newParicle ~= 0 then
-			table.insert(particals, newParicle)
-			Particle.SetControlPoint(newParicle, 2, Entity.GetOrigin(DW.Hero));
-			Particle.SetControlPoint(newParicle, 6, Vector(1, 0, 0));
-			Particle.SetControlPoint(newParicle, 7, Entity.GetOrigin(enemy));
-		end
-		
-		
-	end
+	local blink_radius = 1200	
 	
 	function DW.Combo()
 		
